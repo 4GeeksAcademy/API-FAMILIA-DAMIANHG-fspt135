@@ -37,7 +37,43 @@ def handle_hello():
                      "family": members}
     return jsonify(response_body), 200
 
+@app.route('/members/<int:member_id>', methods=['GET'])
+def get_one_member(member_id):
+    member = jackson_family.get_member(member_id)
+    if member is None:
+        return jsonify({"msg": "Member not found"}), 404
+    return jsonify(member), 200
 
+@app.route('/members', methods=['POST'])
+def add_new_member():
+    request_body = request.get_json()
+    age = request_body.get("age")
+    first_name = request_body.get ("first_name")
+    lucky_numbers = request_body.get ("lucky_numbers")
+    if age is None or first_name is None or lucky_numbers:   
+        return jsonify({"msg": "first_name, age o lucky_numbers esta vacio"}), 400
+    member = jackson_family.add_member(request_body)
+    return jsonify(member), 200
+
+@app.route('/members/<int:member_id>', methods=['DELETE'])
+def delete_member(member_id):
+    deleted = jackson_family.delete_member(member_id)
+    if deleted == False:
+        return jsonify({"msg": "Member not found"}), 404
+    return jsonify({"done": True}), 200
+
+@app.route('/members/<int:member_id>', methods=['PUT'])
+def edit_one_member (member_id):
+    request_body = request.get_json()
+    age = request_body.get("age")
+    first_name = request_body.get ("first_name")
+    lucky_numbers = request_body.get ("lucky_numbers")
+    if age is None or first_name is None or lucky_numbers:   
+        return jsonify({"msg": "first_name, age o lucky_numbers esta vacio"}), 400
+    edit_member = jackson_family.edit_member(member_id, request_body)
+    if edit_member is None:
+        return jsonify({"msg": "Member not found"}), 404
+    return jsonify(edit_member), 200
 
 # This only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
